@@ -15,7 +15,7 @@ QUOTES_BASE_URL = "https://quotes.toscrape.com/"
 QUOTES_PAGE_URL = urllib.parse.urljoin(QUOTES_BASE_URL, "/page/{page_number}/")
 
 
-@dataclass
+@dataclass(frozen=True)
 class Author:
     name: str
     born: str
@@ -83,6 +83,7 @@ def save_to_csv(
             save_author_to_csv(authors_csv_path, quote.author)
 
 
+@lru_cache
 def save_author_to_csv(authors_csv_path: str, author: Author) -> None:
     is_file_exists = os.path.isfile(authors_csv_path)
     with open(authors_csv_path, "a", newline="", encoding="utf-8") as f:
@@ -96,8 +97,6 @@ def main(
     quotes_csv_path: str = QUOTES_CSV_PATH,
     authors_csv_path: str = AUTHORS_CSV_PATH
 ) -> None:
-    print("Scraping started. This may take a while...")
-
     page_number = 1
     all_quotes: list[Quote] = []
 
@@ -110,10 +109,6 @@ def main(
         page_number += 1
 
     save_to_csv(all_quotes, quotes_csv_path, authors_csv_path)
-    print(
-        f"Scraping complete. "
-        f"{len(all_quotes)} quotes saved to {quotes_csv_path}."
-    )
 
 
 if __name__ == "__main__":
